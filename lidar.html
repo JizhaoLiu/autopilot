@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8" />
+	    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+		<title>无人驾驶环境感知技术虚拟仿真实验</title>
+		<link rel="stylesheet" href="css/bootstrap.min.css" />
+		<script src="js/tween.min.js"></script>
+		<style>
+			
+			.raise:hover,
+			.raise:focus {
+			box-shadow: 0 0.5em 0.5em -0.4em var(--hover);
+			-webkit-transform: translateY(-0.25em);
+					transform: translateY(-0.25em);
+			}
+			.raise {
+			--color: #ffffff;
+			--hover: #e5ff60;
+			}
+
+			button {
+			color: var(--color);
+			-webkit-transition: 0.25s;
+			transition: 0.25s;
+			}
+			button:hover, button:focus {
+			border-color: var(--hover);
+			color: #fff;
+			}
+
+			button {
+				background: none;
+				border: 2px solid;
+				font: inherit;
+				line-height: 1;
+				margin: 0.2em;
+				padding: 0.2em 0.2em;
+				}
+
+			html, body {
+				width:100%;
+				height:100%;
+				min-height:635px;
+				font-family:"microsoft yahei", arial, sans-serif;
+				background-color:#0f1c30;
+				background-repeat:no-repeat;
+				background-position:center;
+				background-size:100% 100%;
+				overflow-x:hidden;
+				overflow-y:auto;
+			}
+			body.bg05 {background-image:url("img/bg05.png");}
+			body.bg06 {background-image:url("img/bg06.png");}
+			body.bg07 {background-image:url("img/bg07.png");}
+			body.bg08 {background-image:url("img/bg08.png");}
+			#label {
+				position: absolute;
+				width: 100 px;
+				height: 500 px;
+				font-size:24 px;
+				color: #ffffff;
+				margin: 5 px;
+				padding: 5 px;
+				background: rgba(50, 50, 50, 0.8);
+				line-height: 1;
+				border-radius: 5px;
+				display : none;
+			}			
+			#floatlabel {
+            position: absolute;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.6);
+            line-height: 1;
+            border-radius: 5px;
+        }
+		.header {
+				margin:0 auto;
+				width:100%;
+				height:42px;
+				max-width:1920px;
+				background:url("img/header.png") center no-repeat;
+				background-size:100% 100%;
+			}
+			.header p {
+				margin:0;
+				padding:20 px;
+				line-height:44px;
+				text-align:left;
+				font-size:36px;
+				color:#ffffff;
+			}
+			.header a {
+				margin:0;
+				padding:0;
+				line-height:44px;
+				text-align:left;
+				font-size:18px;
+				color:#ffff00;
+			}
+			.wrapper {position:absolute;top:87px;bottom:0;left:0;right:0;min-height:545px;}
+			.container-fluid {height:100%;min-height:100%;}
+			.row {margin-left:-7px;margin-right:-8px;}
+			.row>div {padding-left:7px;padding-right:8px;}
+			.xpanel-wrapper {padding-bottom:15px;box-sizing:border-box;}
+			.xpanel-wrapper-1 {height:100%;}
+			.xpanel-wrapper-2 {height:50%;}
+			.xpanel-wrapper-1-3 {height:33.33333%;}
+			.xpanel-wrapper-2-3 {height:66.66666%;}
+			.xpanel-wrapper-3-3 {height:100%;}
+			.xpanel {
+				padding:15px;
+				height:100%;
+				min-height:170px;
+				background:url("img/panel.png") center no-repeat;
+				background-size:100% 100%;
+				box-sizing:border-box;
+			}
+
+			/* tool */
+			.fill-h {height:100%;min-height:100%;}
+			.no-margin {margin:0 !important;}
+			.no-padding {padding:0 !important;}
+			.no-bg {background:none !important;}
+			.no-border {border:0 !important;}
+
+			/* scrollbar */
+			::-webkit-scrollbar {width:0;height:0;}
+			::-webkit-scrollbar-track {background-color:transparent;}
+			::-webkit-scrollbar-thumb {border-radius:5px;background-color:rgba(0, 0, 0, 0.3);}
+			h2 {font-size:24px;}
+			h3 {font-size:18px;}
+			h4 {font-size:14px;}
+		</style>		
+	</head>
+	
+	<body onload="welcome()">
+			<header class="header">
+					<p>激光雷达构造 &nbsp&nbsp&nbsp
+						<a href="./index.html">模块1 无人车传感器</a>&nbsp&nbsp&nbsp
+						<a href="./lidar.html">模块2 激光雷达构造</a>&nbsp&nbsp&nbsp
+						<a href="./rotate.html">模块3 点云数据获取</a>&nbsp&nbsp&nbsp
+						<a href="./pointcloud.html">模块4 道路环境感知</a>			
+				</p>
+			</header>	
+		
+		<div class="wrapper">
+			<div class="container-fluid">
+				<div class="row fill-h">
+					<div class="col-lg-12 fill-h">
+						<div class="xpanel-wrapper xpanel-wrapper-1">
+							<div class="xpanel no-bg">
+								<div id="label"></div>    
+								<div class="fill-h" id="velodyne"></div>
+								<div class="button" id="button">									
+									<button class="raise" onclick="setPosition1()">激光发射器</button>
+									<button class="raise" onclick="setPosition2()">镜头</button>									
+									<button class="raise" onclick="setPosition4()">解码电路</button>
+									<button class="raise" onclick="setPosition5()">动态演示</button>									
+									<button class="raise" onclick="setPosition0()">全局视图</button>
+								</div>		
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<script src="js/three.js"></script>
+        <script src="js/DDSLoader.js"></script>
+		<script src="js/MTLLoader.js"></script>
+		<script src="js/OBJLoader.js"></script>
+		<script src="js/jquery-3.3.1.min.js"></script>
+		<script src="js/OrbitControls.js"></script>	
+		<script type="text/javascript">
+		var container, stats, camera,  scene, renderer, selectObject, divt, divl, divw, divh;	
+		var mouseX = 0, mouseY = 0;
+		var v_base = new THREE.Object3D();
+		var v_shell = new THREE.Object3D();
+		var windowHalfX = window.innerWidth / 2;
+		var windowHalfY = window.innerHeight / 2;
+		var text, text1,text2,text3,text4,text5, text6, controls,cast;
+		var status=0;		
+		function welcome(){
+			text = document.getElementById('label');
+			text.style.display = "block";
+			text.innerHTML = "<H3>激光雷达技术原理</H3>\
+			<H4>点击下方按钮，查看激光雷达内部器件及工作过程。</H4>";	
+		}
+		new THREE.MTLLoader()
+				.setPath( 'models/v_base/' )
+				.load( 'v_base.mtl', function ( materials ) {
+					materials.preload();
+					new THREE.OBJLoader()
+						.setMaterials( materials )
+						.setPath( 'models/v_base/' )
+						.load( 'v_base.obj', function ( obj ) {							
+							obj.scale.set(0.6, 0.6, 0.6);
+							var box = new THREE.Box3();
+							box.expandByObject(obj);
+							var x = (box.max.x + box.min.x) / 2;
+							var y = (box.max.y + box.min.y) / 2;
+							var z = (box.max.z + box.min.z) / 2;
+
+							obj.position.set(0 - x, 0 - y, 0 - z);
+
+							v_base.position.set(0, 60, 0);
+							v_base.rotation.set(0, Math.PI/6, 0);
+							v_base.add(obj);
+						} );
+				} ); 		
+		new THREE.MTLLoader()
+				.setPath( 'models/v_shell/' )
+				.load( 'v_shell.mtl', function ( materials ) {
+					materials.preload();
+					new THREE.OBJLoader()
+						.setMaterials( materials )
+						.setPath( 'models/v_shell/' )
+						.load( 'v_shell.obj', function ( obj ) {							
+							obj.scale.set(0.6, 0.6, 0.6);
+							var box = new THREE.Box3();
+							box.expandByObject(obj);
+							var x = (box.max.x + box.min.x) / 2;
+							var y = (box.max.y + box.min.y) / 2;
+							var z = (box.max.z + box.min.z) / 2;
+
+							obj.position.set(0 - x, 0 - y, 0 - z);
+
+							v_shell.position.set(0, 80, 0);
+							v_shell.rotation.set(0, Math.PI/6, 0);
+							v_shell.add(obj);
+						} );
+				} ); 				       		       
+
+		init();
+		inittween(v_shell);		
+		animate();
+
+		function init() {			
+			container = document.getElementById("velodyne");			
+			divw = container.clientWidth||container.offsetWidth;
+			divh = container.clientHeight||container.offsetHeight;
+			divt = $('#velodyne').offset().top;
+			divl = $('#velodyne').offset().left;
+			camera = new THREE.PerspectiveCamera( 28, divw / divh, 1, 10000 );			
+			camera.position.set(0,120,500);
+			camera.lookAt( new THREE.Vector3(0, 200, 0));
+			scene = new THREE.Scene();
+			
+			var ambientLight = new THREE.AmbientLight( 0xffffff, 0.8 );
+			scene.add( ambientLight );
+
+			var pointLight = new THREE.PointLight( 0xffffff, 0.8 );
+			camera.add( pointLight );
+			scene.add( camera );
+			var axesHelper = new THREE.AxesHelper( 1000 );
+			scene.add( axesHelper );
+			var helper = new THREE.GridHelper(1200, 50, 0xCD3700, 0x4A4A4A);
+			scene.add(helper);
+		
+			//v_base.translateY(500);
+			scene.add(v_base);
+			scene.add(v_shell);
+			initdynamic();
+
+			var loader = new THREE.FontLoader();
+			loader.load( 'js/chinesefont.json', function ( font ) {
+					var xMid, text;
+					var color = 0xffff00;
+					var matDark = new THREE.LineBasicMaterial( {
+						color: color,
+						side: THREE.DoubleSide
+					} );
+					var matLite = new THREE.MeshBasicMaterial( {
+						color: color,
+						transparent: true,
+						opacity: 0.9,
+						side: THREE.DoubleSide
+					} );
+					var message = "激光发射器";
+					var shapes = font.generateShapes( message, 8 );
+					var geometry = new THREE.ShapeBufferGeometry( shapes );
+					geometry.computeBoundingBox();
+					xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
+					geometry.translate( xMid, 0, -15 );
+					// make shape ( N.B. edge view not visible )
+					text1 = new THREE.Mesh( geometry, matLite );
+					text1.position.set(-70,500,-10);
+					//text.position.z = - 150;
+					scene.add( text1 );
+
+					var message = "发射镜头 接收镜头";
+					var shapes = font.generateShapes( message, 8 );
+					var geometry = new THREE.ShapeBufferGeometry( shapes );
+					geometry.computeBoundingBox();
+					xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
+					geometry.translate( xMid, 0, -15 );
+					// make shape ( N.B. edge view not visible )
+					text2 = new THREE.Mesh( geometry, matLite );
+					text2.position.set(0,500,45);
+					text2.rotateY(Math.PI/6);
+					//text.position.z = - 150;
+					scene.add( text2 );
+
+					var message = "接收镜头";
+					var shapes = font.generateShapes( message, 8 );
+					var geometry = new THREE.ShapeBufferGeometry( shapes );
+					geometry.computeBoundingBox();
+					xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
+					geometry.translate( xMid, 0, -15 );
+					// make shape ( N.B. edge view not visible )
+					text3 = new THREE.Mesh( geometry, matLite );
+					text3.position.set(50,500,20);
+					text3.rotateY(Math.PI/6);
+					//text.position.z = - 150;
+					scene.add( text3 );
+
+					var message = "解码电路";
+					var shapes = font.generateShapes( message, 8 );
+					var geometry = new THREE.ShapeBufferGeometry( shapes );
+					geometry.computeBoundingBox();
+					xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
+					geometry.translate( xMid, 0, -15 );
+					// make shape ( N.B. edge view not visible )
+					text4 = new THREE.Mesh( geometry, matLite );
+					text4.position.set(50,900,5);
+					text4.rotateY(Math.PI/6);
+					//text.position.z = - 150;
+					scene.add( text4 );	
+
+					var message = "光束发射时间为t0";
+					var shapes = font.generateShapes( message, 8 );
+					var geometry = new THREE.ShapeBufferGeometry( shapes );
+					geometry.computeBoundingBox();
+					xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
+					geometry.translate( xMid, 0, -15 );
+					// make shape ( N.B. edge view not visible )
+					text5 = new THREE.Mesh( geometry, matLite );
+					text5.position.set(-55,650,60);
+					text5.rotateY(Math.PI/6);
+					//text.position.z = - 150;
+					scene.add( text5 );			
+
+					var message = "光束经目标反射后，抵达接收镜头时间为t1\n目标距离为：(t1-t0)/光速";
+					var shapes = font.generateShapes( message, 8 );
+					var geometry = new THREE.ShapeBufferGeometry( shapes );
+					geometry.computeBoundingBox();
+					xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
+					geometry.translate( xMid, 0, -15 );
+					// make shape ( N.B. edge view not visible )
+					text6 = new THREE.Mesh( geometry, matLite );
+					text6.position.set(155,650,-35);
+					text6.rotateY(Math.PI/6);
+					//text.position.z = - 150;
+					scene.add( text6 );			
+
+				} ); //end load function
+
+			renderer = new THREE.WebGLRenderer( { alpha: true } );
+			renderer.setSize(divw, divh);//设置渲染区域尺寸
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setClearAlpha(0);
+			container.appendChild( renderer.domElement );
+			controls = new THREE.OrbitControls( camera, renderer.domElement );
+			controls.target.set( 0, 0, 0 );
+			controls.update();
+
+			//document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+			//addEventListener('click', onMouseClick, false); 
+			window.addEventListener( 'resize', onWindowResize, false );			
+		}
+		
+		function setPosition0() {
+			inittween2(0);	
+			text1.position.set(-70,500,-10);
+			text2.position.set(0,500,45);			
+			text4.position.set(50,500,5);
+			text5.position.set(-55,650,60);
+			text6.position.set(155,650,-35);
+			cast.position.set(-8,760,26);
+			}
+		function setPosition1() {
+			//if (tweenaa!=null) tweenaa.stop();  //在这里停止激光雷达扫描的动画。
+			//if (tweenbb!=null) tweenbb.stop();
+			//if (tweencc!=null) tweencc.stop();
+			inittween2(1);		
+			text1.position.set(-70,55,-10);
+			text2.position.set(0,500,45);			
+			text4.position.set(50,900,5);
+			text5.position.set(-55,650,60);
+			text6.position.set(155,650,-35);
+			cast.position.set(-8,760,26);
+			}
+		function setPosition2() {
+			inittween2(2);
+			text1.position.set(-70,500,-10);
+			text2.position.set(20,53,45);			
+			text4.position.set(50,500,5);
+			text5.position.set(-55,650,60);
+			text6.position.set(155,650,-35);
+			cast.position.set(-8,760,26);
+			}
+		function setPosition4() {
+			inittween2(4);
+			text1.position.set(-70,500,-10);
+			text2.position.set(0,500,45);			
+			text4.position.set(50,93,5);
+			text5.position.set(-55,650,60);
+			text6.position.set(155,650,-35);
+			cast.position.set(-8,760,26);		
+			}
+		function setPosition5() {
+			text1.position.set(-70,500,-10);
+			text2.position.set(0,500,45);			
+			text4.position.set(50,900,5);
+			text5.position.set(-45,58,90);
+			text6.position.set(160,65,-35);
+			camera.position.set(-260,125,700);
+			camera.lookAt(new THREE.Vector3(190,60,0));
+			cast.position.set(-8,60,26);
+			inittween3(cast);
+			}
+		
+		function onMouseClick(event) {
+			var intersects = getIntersects(event);
+			if (intersects.length != 0 && intersects[0].object instanceof THREE.Mesh) {
+				selectObject = intersects[0].object;
+				//checkclick(selectObject);
+			} 
+		}
+		function initdynamic()
+		{
+			var geometry = new THREE.BoxGeometry(30, 30, 30); //创建一个立方体几何对象Geometry
+			var material = new THREE.MeshLambertMaterial({
+			color: 0x0000ff
+			}); //材质对象Material
+
+			var mesh = new THREE.Mesh(geometry, material); //网格模型对象Mesh
+			mesh.position.set(200,76,380);
+			scene.add(mesh); //网格模型添加到场景中
+
+			var geometry = new THREE.CylinderGeometry(1, 1 ,5 ,6 ,6);
+			var material = new THREE.MeshLambertMaterial({
+			color: 0xff0000
+			}); //材质对象Material
+
+			cast = new THREE.Mesh(geometry, material); //网格模型对象Mesh
+			cast.position.set(-8,760,26);
+			//cast.position.set(23,76,8);
+			cast.rotateX(Math.PI/2);
+			cast.rotateZ(-1*Math.PI/6);
+			scene.add(cast); //网格模型添加到场景中
+		}
+		function inittween3(){
+			var curpaa = {x:-260,y:125,z:700};			
+			var c2aa = {x:300,y:125,z:300};  //watch screen;
+			var positionaa = { x: -8, y: 76 , z: 26};
+			var destaa = { x: 190, y: 76 , z: 370};
+			var dest2aa = { x: 20, y: 76 , z: 8};
+			var tweenaa;
+			var tweenbb;
+			var tweencc;
+			tweenaa = castCon(positionaa,destaa,3800);
+			tweenbb = castCon(destaa,dest2aa,3800);
+			tweencc = cameraCon(curpaa, c2aa, 1);
+			tweenaa.chain(tweenbb);
+			tweenbb.chain(tweencc);
+			tweenaa.start(); 
+				
+			function castCon(pstart, pend, time) {
+				var tween11 = new TWEEN.Tween(pstart).to(pend,time).easing(TWEEN.Easing.Quadratic.InOut);								
+				var update = function () {
+					cast.position.set(pstart.x,pstart.y,pstart.z);
+					camera.lookAt(new THREE.Vector3(190,60,0));
+				};
+				tween11.onUpdate(update);
+				return tween11;
+			}	
+			function cameraCon(pstart, pend, time) {
+					var tween22 = new TWEEN.Tween(pstart).to(pend,time).easing(TWEEN.Easing.Quadratic.InOut);								
+                    var update2 = function () {
+						camera.position.set(pstart.x,pstart.y,pstart.z);
+						camera.lookAt(new THREE.Vector3(95,90,20));
+                    };
+                    tween22.onUpdate(update2);
+                    return tween22;
+				}
+		}
+		
+		function getIntersects(event) {
+                event.preventDefault();
+                var raycaster = new THREE.Raycaster();
+                var mouse = new THREE.Vector2();
+				mouse.x = ((event.clientX-divl) / (divw)) * 2 - 1;
+				mouse.y = -((event.clientY-divt) / (divh)) * 2 + 1;	
+				if (mouse.x < -1) mouse.x = -1;
+				if (mouse.x > 1 ) mouse.x = 1;
+				if (mouse.y < -1) mouse.y = -1;
+				if (mouse.y > 1 ) mouse.y = 1;
+                raycaster.setFromCamera(mouse, camera);
+                var intersects = raycaster.intersectObjects(scene.children, true);
+                return intersects;
+        }
+		
+		function onWindowResize() {
+			windowHalfX = window.innerWidth / 2;
+			windowHalfY = window.innerHeight / 2;
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+		}
+
+		function onDocumentMouseMove( event ) {
+			mouseX = ( event.clientX - windowHalfX ) / 2;
+			mouseY = ( event.clientY - windowHalfY ) / 2;
+		}
+		function inittween(target){		
+			var position = { x: 0, y: 80 , z: 0};
+            tween = new TWEEN.Tween(position);
+            tween.to({ y: 180 }, 5000);
+            tween.easing(TWEEN.Easing.Sinusoidal.InOut);
+            tween.onUpdate(tweenupdate);
+            function tweenupdate() {
+                target.position.y = this.y;
+				camera.lookAt(new THREE.Vector3(0,60,0));
+            }
+            tween.start();
+		}
+		
+		function inittween2(step){
+			var curp = THREE.Vector3();
+			curp = this.camera.position;
+			
+			var transmitter = {x:-150,y:95,z:300};  //watch screen;
+			var translens = {x:80,y:95,z:320};  //watch screen;			
+			var decode = {x:240,y:120,z:45};  //watch screen;
+			var all = {x:0,y:120,z:500};  //watch screen;
+
+			switch (step)
+			{
+				case 0:
+					var tweena = cameraCon(curp,all,  1800);					
+					tweena.start();              
+					break;
+				case 1:
+					var tweena = cameraCon(curp,transmitter,  1800);
+					tweena.start();              
+					break;
+				case 2:
+					var tweenb = cameraCon(curp,translens,  1800);
+					tweenb.start();
+					break;				
+				case 4:
+					var tweend = cameraCon(curp,decode,1800);
+					tweend.start();
+					break;
+				default:						
+					break;
+			}
+				
+			function cameraCon(pstart, pend, time) {
+				var tween1 = new TWEEN.Tween(pstart).to(pend,time).easing(TWEEN.Easing.Quadratic.InOut);								
+				var update = function () {
+					camera.position.set(pstart.x,pstart.y,pstart.z);
+					camera.lookAt(new THREE.Vector3(0,60,0));
+				};
+				tween1.onUpdate(update);
+				return tween1;
+			}			
+		}		
+		function animate() {
+			render();			
+		}		
+		function render()
+		{
+			TWEEN.update();				
+			requestAnimationFrame(render);			
+			renderer.render(scene, camera);	
+		}
+		</script>
+	</body>
+</html>
